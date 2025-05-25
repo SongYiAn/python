@@ -20,97 +20,7 @@ class QuantitativeAnalysisSystem:
         self.company_data = None  # 上市公司数据
         self.stock_info = None  # 股票信息
         self.analysis_results = {}
-        
-    def create_sample_data(self):
-        """创建示例数据文件"""
-        print("正在创建示例数据文件...")
-        
-        # 创建申银万国行业分类数据
-        industries = ['银行', '房地产', '医药生物', '电子', '计算机', '汽车', '食品饮料', '化工', '机械设备', '电力设备']
-        sw_data = []
-        for i, industry in enumerate(industries):
-            for j in range(10):  # 每个行业10只股票
-                stock_code = f"{(i*10+j+1):06d}"
-                sw_data.append([industry, stock_code])
-        
-        self.sw_data = pd.DataFrame(sw_data, columns=['行业名称', 'Stkcd'])
-        self.sw_data.to_excel('sw.xlsx', index=False)
-        
-        # 创建股票代码信息
-        stock_codes = []
-        stock_names = []
-        for i in range(100):
-            ts_code = f"{(i+1):06d}.SZ"
-            name = f"股票{i+1:03d}"
-            stock_codes.append([ts_code, f"{(i+1):06d}", name])
-            stock_names.append([f"{(i+1):06d}", name])
-        
-        pd.DataFrame(stock_codes, columns=['ts_code', 'code', 'name']).to_excel('stkcode.xlsx', index=False)
-        pd.DataFrame(stock_names, columns=['Stkcd', 'Stknme']).to_excel('上市公司信息表.xlsx', index=False)
-        
-        # 创建上市公司财务数据
-        years = ['2014', '2015', '2016']
-        all_company_data = []
-        
-        np.random.seed(42)
-        for year in years:
-            for i in range(100):
-                stock_code = f"{(i+1):06d}"
-                data = {
-                    'Stkcd': stock_code,
-                    'Accper': f'{year}-12-31',
-                    'revenue': np.random.normal(1000, 300),  # 营业收入
-                    'net_profit': np.random.normal(100, 50),  # 净利润
-                    'total_assets': np.random.normal(5000, 1500),  # 总资产
-                    'roe': np.random.normal(0.12, 0.05),  # 净资产收益率
-                    'debt_ratio': np.random.normal(0.4, 0.15),  # 资产负债率
-                    'current_ratio': np.random.normal(1.5, 0.5),  # 流动比率
-                    'gross_margin': np.random.normal(0.25, 0.1),  # 毛利率
-                    'pe_ratio': np.random.normal(15, 8),  # 市盈率
-                    'investment_eff': np.random.normal(0.08, 0.03),  # 投资效率
-                    'scale_index': np.random.normal(100, 30),  # 规模指标
-                }
-                all_company_data.append(data)
-        
-        company_df = pd.DataFrame(all_company_data)
-        company_df.to_excel('上市公司总体规模与投资效率指标.xlsx', index=False)
-        
-        # 创建年度财务数据
-        for year in years:
-            year_data = company_df[company_df['Accper'] == f'{year}-12-31'].copy()
-            year_data['ts_code'] = year_data['Stkcd'] + '.SZ'
-            year_data.to_excel(f'Data{year}.xlsx', index=False)
-        
-        # 创建交易数据
-        for year in ['2015', '2016', '2017']:
-            trading_data = []
-            for i in range(50):  # 50只股票的交易数据
-                stock_code = f"{(i+1):06d}"
-                dates = pd.date_range(f'{year}-01-01', f'{year}-12-31', freq='D')
-                
-                base_price = np.random.uniform(10, 100)
-                prices = [base_price]
-                
-                for j in range(1, len(dates)):
-                    change = np.random.normal(0, 0.02)
-                    new_price = prices[-1] * (1 + change)
-                    prices.append(max(new_price, 1))
-                
-                for k, date in enumerate(dates):
-                    if k < len(prices):
-                        trading_data.append([
-                            stock_code,
-                            date.strftime('%Y-%m-%d'),
-                            prices[k],  # Clsprc
-                            prices[k] * 0.98,  # Loprc
-                            prices[k] * 1.02,  # Hiprc
-                            np.random.randint(1000, 100000)  # Dnshrtrd
-                        ])
-            
-            trading_df = pd.DataFrame(trading_data, columns=['Stkcd', 'Trddt', 'Clsprc', 'Loprc', 'Hiprc', 'Dnshrtrd'])
-            trading_df.to_excel(f'{year}年所有上市股票交易数据.xlsx', index=False)
-        
-        print("示例数据文件创建完成！")
+
     
     def load_basic_data(self):
         """加载基础数据"""
@@ -125,7 +35,7 @@ class QuantitativeAnalysisSystem:
             return False
     
     def financial_analysis(self, data_year='2014'):
-        """财务数据主成分分析 - 基于fun.py的方法"""
+        """财务数据主成分分析 """
         print(f"开始进行{data_year}年财务数据分析...")
         
         try:
@@ -244,7 +154,7 @@ class QuantitativeAnalysisSystem:
             return None
     
     def investment_efficiency_analysis(self, analysis_year='2014'):
-        """投资效率分析 - 基于fun1.py的方法"""
+        """投资效率分析 """
         print(f"开始进行{analysis_year}年投资效率分析...")
         
         try:
@@ -384,7 +294,7 @@ class QuantitativeAnalysisSystem:
             return "其他"
     
     def technical_indicators(self, data):
-        """计算技术指标 - 基于Ind.py的方法"""
+        """计算技术指标 """
         # 移动平均线
         MA5 = data['Clsprc'].rolling(5).mean()
         MA10 = data['Clsprc'].rolling(10).mean()
@@ -448,71 +358,132 @@ class QuantitativeAnalysisSystem:
         return indicators
     
     def strategy_backtest(self, stock_code, base_year='2014'):
-        """策略回测 - 基于Re_comput.py的方法"""
+        """策略回测 - 简化版本"""
         try:
+            stock_code = str(stock_code).strip()
             next_year = str(int(base_year) + 1)
             trading_file = f'{next_year}年所有上市股票交易数据.xlsx'
-            
-            # 读取交易数据
-            all_trading = pd.read_excel(trading_file)
-            stock_data = all_trading[all_trading['Stkcd'] == stock_code].copy()
-            
-            if len(stock_data) < 50:
+
+            # 检查文件是否存在
+            if not os.path.exists(trading_file):
+                print(f"文件不存在: {trading_file}")
                 return None
-            
-            stock_data = stock_data.sort_values('Trddt').reset_index(drop=True)
+
+            try:
+                # 读取数据
+                all_trading = pd.read_excel(trading_file)
+                all_trading['Stkcd'] = all_trading['Stkcd'].astype(str)
+
+                # 尝试多种匹配方式获取股票数据
+                stock_data = all_trading[all_trading['Stkcd'] == stock_code].copy()
+                if len(stock_data) == 0:
+                    # 尝试只保留数字部分
+                    numeric_code = ''.join(c for c in stock_code if c.isdigit())
+                    stock_data = all_trading[all_trading['Stkcd'].str.contains(numeric_code)].copy()
+
+                if len(stock_data) < 20:
+                    print(f"股票{stock_code}交易记录不足")
+                    return None
+            except Exception as e:
+                print(f"读取数据失败: {e}")
+                return None
+
+            # 只保留必要列并排序
+            required_cols = ['Stkcd', 'Trddt', 'Clsprc', 'Hiprc', 'Loprc', 'Dnshrtrd']
+            available_cols = [col for col in required_cols if col in stock_data.columns]
+
+            if 'Trddt' not in available_cols or 'Clsprc' not in available_cols:
+                print(f"缺少必要的列")
+                return None
+
+            stock_data = stock_data[available_cols].sort_values('Trddt').reset_index(drop=True)
             stock_data['Trddt'] = pd.to_datetime(stock_data['Trddt'])
             
             # 计算技术指标
-            indicators = self.technical_indicators(stock_data)
-            
+            try:
+                indicators = self._optimized_technical_indicators(stock_data)
+            except:
+                try:
+                    indicators = self.technical_indicators(stock_data)
+                except:
+                    print("技术指标计算失败")
+                    return None
+
             # 合并数据
             analysis_data = pd.concat([stock_data, indicators], axis=1)
             analysis_data = analysis_data.dropna()
             
-            if len(analysis_data) < 30:
+            if len(analysis_data) < 20:
                 return None
             
             # 划分训练和测试集
             train_end = f'{next_year}-11-30'
             train_mask = analysis_data['Trddt'] <= train_end
             
-            X_train = analysis_data.loc[train_mask, ['MA5', 'MA10', 'MA20', 'MACD', 'K', 'D', 'J', 'RSI6', 'BIAS5', 'BIAS10', 'BIAS20', 'OBV']]
-            y_train = analysis_data.loc[train_mask, '涨跌趋势']
-            X_test = analysis_data.loc[~train_mask, ['MA5', 'MA10', 'MA20', 'MACD', 'K', 'D', 'J', 'RSI6', 'BIAS5', 'BIAS10', 'BIAS20', 'OBV']]
-            y_test = analysis_data.loc[~train_mask, '涨跌趋势']
-            
-            if len(X_train) == 0 or len(X_test) == 0:
+            # 如果训练数据太少，使用前70%作为训练集
+            if sum(train_mask) < 15:
+                train_size = int(len(analysis_data) * 0.7)
+                train_mask = np.zeros(len(analysis_data), dtype=bool)
+                train_mask[:train_size] = True
+
+            # 选择特征
+            feature_cols = ['MA5', 'MA10', 'MA20', 'MACD', 'K', 'D', 'J', 'RSI6', 'BIAS5', 'BIAS10', 'BIAS20', 'OBV']
+            available_features = [col for col in feature_cols if col in analysis_data.columns]
+
+            if len(available_features) < 5:
                 return None
             
+            # 提取特征和目标
+            X_train = analysis_data.loc[train_mask, available_features].values
+            y_train = analysis_data.loc[train_mask, '涨跌趋势'].values
+            X_test = analysis_data.loc[~train_mask, available_features].values
+            y_test = analysis_data.loc[~train_mask, '涨跌趋势'].values
+
+            if len(X_train) < 10 or len(X_test) < 5:
+                return None
+
             # 数据标准化
             scaler = StandardScaler()
             X_train_scaled = scaler.fit_transform(X_train)
             X_test_scaled = scaler.transform(X_test)
             
             # 逻辑回归预测
-            clf = LogisticRegression(max_iter=1000)
+            clf = LogisticRegression(max_iter=500, solver='liblinear')
             clf.fit(X_train_scaled, y_train)
             predictions = clf.predict(X_test_scaled)
             model_score = clf.score(X_train_scaled, y_train)
-            
-            # 计算预测准确率
             accuracy = (predictions == y_test).mean()
             
             # 计算收益率
             test_data = analysis_data.loc[~train_mask].copy()
             test_data['prediction'] = predictions
             
-            returns = []
-            for i in range(len(test_data) - 1):
-                if test_data.iloc[i]['prediction'] == 1:  # 预测上涨时买入
-                    current_price = test_data.iloc[i]['Clsprc']
-                    next_price = test_data.iloc[i + 1]['Clsprc']
-                    ret = (next_price - current_price) / current_price
-                    returns.append(ret)
-            
-            total_return = sum(returns) if returns else 0
-            
+            buy_signals = test_data['prediction'] == 1
+            if buy_signals.sum() > 0:
+                # 移除最后一个买入信号
+                if buy_signals.iloc[-1]:
+                    buy_signals.iloc[-1] = False
+
+                if buy_signals.sum() > 0:
+                    buy_prices = test_data.loc[buy_signals, 'Clsprc'].values
+                    next_day_indices = np.where(buy_signals)[0] + 1
+                    next_day_indices = next_day_indices[next_day_indices < len(test_data)]
+
+                    if len(next_day_indices) > 0:
+                        next_day_prices = test_data.iloc[next_day_indices]['Clsprc'].values
+                        min_len = min(len(buy_prices), len(next_day_prices))
+                        returns = (next_day_prices[:min_len] - buy_prices[:min_len]) / buy_prices[:min_len]
+                        total_return = np.sum(returns)
+                    else:
+                        returns = []
+                        total_return = 0.0
+                else:
+                    returns = []
+                    total_return = 0.0
+            else:
+                returns = []
+                total_return = 0.0
+
             return {
                 'accuracy': round(accuracy, 3),
                 'model_score': round(model_score, 3),
@@ -521,9 +492,81 @@ class QuantitativeAnalysisSystem:
             }
             
         except Exception as e:
-            print(f"策略回测出错 ({stock_code}): {e}")
+            print(f"策略回测出错: {e}")
             return None
     
+    def _optimized_technical_indicators(self, data):
+        """优化版的技术指标计算，使用向量化操作替代循环"""
+        # 移动平均线
+        MA5 = data['Clsprc'].rolling(5).mean()
+        MA10 = data['Clsprc'].rolling(10).mean()
+        MA20 = data['Clsprc'].rolling(20).mean()
+
+        # MACD指标
+        EMA12 = data['Clsprc'].ewm(span=12).mean()
+        EMA26 = data['Clsprc'].ewm(span=26).mean()
+        DIF = EMA12 - EMA26
+        DEA = DIF.ewm(span=9).mean()
+        MACD = 2 * (DIF - DEA)
+
+        # KDJ指标
+        Lmin = data['Loprc'].rolling(9).min()
+        Lmax = data['Hiprc'].rolling(9).max()
+        RSV = (data['Clsprc'] - Lmin) / (Lmax - Lmin)
+        K = RSV.ewm(alpha=1/3).mean()
+        D = K.ewm(alpha=1/3).mean()
+        J = 3 * D - 2 * K
+
+        # RSI指标
+        delta = data['Clsprc'].diff()
+        gain = delta.where(delta > 0, 0).rolling(6).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(6).mean()
+        rs = gain / loss
+        RSI6 = 100 - (100 / (1 + rs))
+
+        # BIAS乖离率
+        BIAS5 = (data['Clsprc'] - MA5) / MA5
+        BIAS10 = (data['Clsprc'] - MA10) / MA10
+        BIAS20 = (data['Clsprc'] - MA20) / MA20
+
+        # OBV能量潮 - 向量化实现
+        price_change = data['Clsprc'].diff()
+        volume = data['Dnshrtrd'].values
+        obv = np.zeros(len(data))
+
+        # 设置第一个非NaN位置的OBV为0
+        first_valid = 1
+        obv[first_valid] = 0
+
+        # 使用numpy向量化操作计算OBV
+        price_change_np = price_change.values[first_valid+1:]
+        volume_slice = volume[first_valid+1:]
+
+        # 预分配数组
+        signs = np.zeros_like(price_change_np)
+        signs[price_change_np > 0] = 1
+        signs[price_change_np < 0] = -1
+
+        # 计算OBV变化
+        obv_changes = signs * volume_slice
+
+        # 累积求和
+        obv_values = np.cumsum(obv_changes)
+        obv[first_valid+1:] = obv_values
+
+        # 涨跌趋势 - 向量化实现
+        trend = np.zeros(len(data))
+        trend[1:] = np.sign(price_change.values[1:])  # 使用sign函数将正值转为1，负值转为-1，0保持0
+
+        indicators = pd.DataFrame({
+            'MA5': MA5, 'MA10': MA10, 'MA20': MA20, 'MACD': MACD,
+            'K': K, 'D': D, 'J': J, 'RSI6': RSI6,
+            'BIAS5': BIAS5, 'BIAS10': BIAS10, 'BIAS20': BIAS20,
+            'OBV': obv, '涨跌趋势': trend
+        })
+
+        return indicators
+
     def industry_analysis(self, industry_name, analysis_year='2014'):
         """行业分析"""
         print(f"开始进行{industry_name}行业{analysis_year}年分析...")
@@ -567,7 +610,10 @@ class QuantitativeAnalysisSystem:
 
         # 获取该行业的股票代码
         try:
-            industry_stocks = self.sw_data[self.sw_data[industry_col] == industry_name][stock_code_col].tolist()
+            industry_stocks = self.sw_data[self.sw_data[industry_col] == industry_name][stock_code_col].astype(str).tolist()
+            print(f"找到{len(industry_stocks)}只{industry_name}行业股票")
+            if len(industry_stocks) > 0:
+                print(f"示例股票代码: {industry_stocks[:3]}")
         except Exception as e:
             print(f"获取行业股票代码时出错: {e}")
             return None
@@ -598,12 +644,34 @@ class QuantitativeAnalysisSystem:
                 # 如果找不到，使用第一列
                 fscore_stock_col = fscore_df.columns[0]
 
-        # 筛选该行业的股票
-        industry_scores = fscore_df[fscore_df[fscore_stock_col].isin(industry_stocks)].head(10)
+        # 重要：确保股票代码格式一致（转为字符串）
+        fscore_df[fscore_stock_col] = fscore_df[fscore_stock_col].astype(str)
+
+        # 打印两边代码格式进行调试
+        print(f"行业股票代码格式: {type(industry_stocks[0]) if industry_stocks else 'N/A'}")
+        print(f"分析结果股票代码格式: {type(fscore_df[fscore_stock_col].iloc[0]) if len(fscore_df) > 0 else 'N/A'}")
+
+        # 检查代码格式，确保匹配（去除可能的前缀）
+        cleaned_industry_stocks = []
+        for stock in industry_stocks:
+            # 保留数字部分
+            cleaned_code = ''.join(c for c in stock if c.isdigit())
+            if cleaned_code:
+                cleaned_industry_stocks.append(cleaned_code)
+
+        # 对分析结果中的代码也做同样处理
+        fscore_df['cleaned_code'] = fscore_df[fscore_stock_col].apply(lambda x: ''.join(c for c in str(x) if c.isdigit()))
+
+        # 使用清理后的代码进行匹配
+        industry_scores = fscore_df[fscore_df['cleaned_code'].isin(cleaned_industry_stocks)].head(10)
 
         if industry_scores.empty:
             print(f"未找到{industry_name}行业的投资效率数据")
-            return None
+            # 尝试直接使用原始代码再次匹配
+            industry_scores = fscore_df[fscore_df[fscore_stock_col].isin(industry_stocks)].head(10)
+            if industry_scores.empty:
+                print("使用原始代码匹配也未找到结果")
+                return None
 
         print(f"\n{industry_name}行业投资效率排名前10:")
 
@@ -639,6 +707,8 @@ class QuantitativeAnalysisSystem:
         for _, row in industry_scores.iterrows():
             stock_code = row[fscore_stock_col]
             if info_name_col is not None:
+                # 转换为相同格式进行匹配
+                self.stock_info[info_stock_col] = self.stock_info[info_stock_col].astype(str)
                 stock_name_match = self.stock_info[self.stock_info[info_stock_col] == stock_code]
                 stock_name = stock_name_match[info_name_col].iloc[0] if len(stock_name_match) > 0 else '未知'
             else:
@@ -712,11 +782,8 @@ class QuantitativeAnalysisSystem:
         
         # 检查数据文件是否存在
         if not self.load_basic_data():
-            print("创建示例数据...")
-            self.create_sample_data()
-            if not self.load_basic_data():
-                print("数据加载失败，程序退出")
-                return
+            print("数据加载失败，程序退出")
+            return
         
         while True:
             print("\n" + "-"*40)
